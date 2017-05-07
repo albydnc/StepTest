@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+p { line-height: 10% }
+</style>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart'], 'language':'it'});
+      google.charts.setOnLoadCallback(drawChart);
+      var n= 50;
+      function valset(){
+      n = document.getElementById("nval").elements[0].value;
+      drawChart();
+      }
+      function printing(par,str) {
+       document.getElementById(par).innerHTML = str;
+      }
+      function dateReviver(key, value) {
+                        var a;
+                        if (typeof value === 'string') {
+                            a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z|([+\-])(\d{2}):(\d{2}))$/.exec(value);
+                            if (a) {
+                                return new Date(+a[1], +a[2] - 1, +a[3], +a[4],
+                                                +a[5], +a[6]);
+                            }
+                        }
+                        return value;
+                    }
+      function drawChart() {
+        //configurazione
+        var xmlh;
+		xmlh = new XMLHttpRequest();
+		xmlh.open('GET', 'http://precursori.altervista.org/php_test/config.txt', false);
+		xmlh.send();
+		var conf = xmlh.responseText.split(/\n/);
+        console.log(conf);
+        //scarico dati
+        var xmlhttp;
+		xmlhttp = new XMLHttpRequest();
+        console.log(n);
+        var urlstring = 'http://precursori.altervista.org/php_test/tojson.php?f1='+conf[1]+'&f2='+conf[2]+'&n='+n;
+		xmlhttp.open('GET', urlstring, false);
+		xmlhttp.send();
+		var jsonData = xmlhttp.responseText;
+        //var lastm = jsonData.slice(-8,-2).split(",")[1];
+        //printing("Ultima misura: "+lastm);
+        /*var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Data/Ora');
+        data.addColumn('number', 'Portata');
+        console.log(jsonData);
+        data.addRows(JSON.parse(jsonData));*/
+        var dates = JSON.parse(jsonData, dateReviver);
+        var data = google.visualization.arrayToDataTable(dates);
+        var options = {
+          title: 'Portata Misuratore in '+conf[3],
+          hAxis: {title: 'Data/Ora',  titleTextStyle: {color: '#333'}, format: "dd MMM, HH:mm"},
+          vAxis: {title: 'Portata ('+conf[3]+')', minValue: 0}
+        };
+		var lastm1 = data.getFormattedValue(data.getNumberOfRows() -1, 2);
+		var lastm = data.getFormattedValue(data.getNumberOfRows() -1, 1);
+        var lasth = data.getFormattedValue(data.getNumberOfRows() -1, 0);
+        printing("tre","CH1: "+data.getFormattedValue(data.getNumberOfRows() -3, 1)+" CH2: "+data.getFormattedValue(data.getNumberOfRows() -3, 2));
+        printing("due","CH1: "+data.getFormattedValue(data.getNumberOfRows() -2, 1)+" CH2: "+data.getFormattedValue(data.getNumberOfRows() -2, 2));
+        printing("last","<b>CH1: "+lastm+" CH2: "+lastm1+"</b><br>"+lasth);
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+        var tim = setInterval(drawChart, conf[4]*1000);
+      }
+		
+    </script>
+  <title></title>
+</head>
+<body>
+<center><h2>Misuratore 1 - Step Test</h2></center>
+<div id="last" style="font-size:40px; text-align: center"></div>
+<p id="due" style="color:#666666; font-size:38px; font-weight: bold; text-align: center"></p>
+<p id="tre" style="color:#bbbbbb; font-size:35px; font-weight: bold; text-align: center"></p>
+<div id="chart_div" style="width: 100%; height: 350px;"></div>
+<center>
+<br>
+<form id="nval">
+	Numero di valori nel grafico:
+    <input type="text" name="n"/>
+</form><br><button onclick="valset()">Imposta</button><br></center>
+<br>
+<center>
+<form action="http://precursori.altervista.org/php_test/config.html" target="_blank">
+    <input type="submit" value="Configura Periferica" />
+</form> </center>
+<br>
+<center>
+<form action="http://precursori.altervista.org/php_test/csv_del.php" method="post">
+    <input type="submit" value="Cancella Archivio" />
+</form>
+<br>
+<a href="http://precursori.altervista.org/php_test/log.csv"><button>Scarica Archivio</button></a>
+<br>
+<br>
+<form action="http://precursori.altervista.org/php_test/csv_del.php" method="post">
+	<input type="text" name="addr"/>          
+    <input type="submit" value="Invia Archivio via mail e poi cancella" />
+</form>
+</center>
+</body>
+</html>

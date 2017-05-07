@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Pagina di Configurazione ARDUINO GPRS logger</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+        form { 
+        font-size: 18px;
+	    line-height: 30px;
+        }
+        hr { 
+    width: 50%;
+} 
+        </style>
+    </head>
+    <body><center>
+        <div><h1>PAGINA DI CONFIGURAZIONE Data Logger/Step Test</h1></div><br>
+        <form id="f1" action="salva.php" method="post">
+        Fondo Scala Misuratore 1:<br>
+        <input type="text" name="fondo" value="50"><br>
+        Fondo Scala Misuratore 2:<br>
+        <input type="text" name="fondo1" value="50"><br>
+        Unità di Misura:<br>
+        <input type="text" name="unita" value="l/s"><br>
+        Frequenza di misura (s):<br>
+        <input type="text" name="freq" value="10"><br>
+        Frequenza di caricamento (s):<br>
+        <input type="text" name="upd" value="60"><br>
+        Data/Ora di Inizio: <br>
+        <input type="datetime-local" name="inizio"><br>
+        Data/Ora di Fine: <br>
+        <input type="datetime-local" name="fine"><br><br>
+        <hr>
+        <b>Dopo lo step-test:</b><br>
+        <input type="radio" name="post" value="0" checked> Spegni<br>
+        <input type="radio" name="post" value="1" checked> Data Log<br>
+		Frequenza di misura (s):<br>
+        <input type="text" name="dmis" value="60"><br>
+        Frequenza di caricamento (s):<br>
+        <input type="text" name="dup" value="120"><br>
+<br>
+        <input type="submit" value="Invia Configurazione"><br>
+        </form>
+        </center>
+    </body>
+</html>
