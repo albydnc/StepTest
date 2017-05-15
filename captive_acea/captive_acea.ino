@@ -1,3 +1,19 @@
+/* DATA-LOGGER Step Test basato su ESP8266
+ *  
+ *  Materiali:
+ *  Il SoC utilizzato è un ESP-12E su scheda NodeMCU
+ *  Il Modem utilizzato è SIMCOM SIM900A
+ *  Il Convertitore A/D è PCF8591T
+ *  
+ *  Utilizzo:
+ *  Inserire la configurazione in questa pagina indicando
+ *  UPurl e CONFurl, debug e selezione sim.
+ *  
+ *  Release Log:
+ *  15/05/17
+ *  - Aggiunta funzione primitiva per il risparmio energetico
+ *  - Aggiornamento configurazione automatico
+ *  */
 //INCLUSIONE librerie
 #include <TimeLib.h>
 #include <Time.h>
@@ -9,8 +25,8 @@
 
 //Definire per Debug Seriale
 //#define DEBUG 
-// definire selezione sim
 
+// definire selezione sim
 //#define VODAFONE
 #define TIM
 
@@ -23,7 +39,7 @@ ESP8266WebServer webServer(80);
 String UPurl = "http://precursori.altervista.org/php_test/log.php?misura1=";
 String CONFurl = "http://precursori.altervista.org/php_test/config.txt";
 int conf[5]; // file conf: T misura, T upload, dopo, Tmisura,Tupload
-time_t DataI, DataO;
+time_t DataI, DataO,lastconf,confver;
 String lastTime = "";
 byte p =0; // puntatore per le misure
 unsigned long last = 0; // time per le misure
@@ -33,7 +49,7 @@ int fondo1, fondo2;
 String unit;
 String stato;
 bool wifi=true;
-//SETUP periferica, Eseguito all'avvio della periferica
+                                                                      //SETUP periferica, Eseguito all'avvio della periferica
 void setup() {
   ESP.wdtDisable();
   pinMode(2, OUTPUT);
@@ -85,9 +101,10 @@ void setup() {
   #endif
   digitalWrite(2, HIGH);
 }
-//FUNZIONE Loop Generale del codice
+                                                                      //FUNZIONE Loop Generale del codice
 void loop() {
-  if(millis()>600000 && wifi){
+  if(lastconf < confver) confGet(CONFurl,false);
+  if(millis()>1800000 && wifi){
     WiFi.mode(WIFI_OFF);
     #ifdef DEBUG
     Serial.println("WiFi Spento");

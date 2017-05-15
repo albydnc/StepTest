@@ -137,6 +137,21 @@ void dataSend(float mis, float mis1,String url,bool ssl){
     #endif
     lastTime += "  <b>RIUSCITO</b>";
   }
+  gprs.println("AT+HTTPREAD\r");
+  if(!gprs.find("HTTPREAD")){
+  modemReset();
+  digitalWrite(2, HIGH);
+  return;
+  } 
+  int tconf[6];
+  gprs.readStringUntil(';');
+  tconf[0]  = gprs.readStringUntil('-').toInt();           //legge data ultima config
+  tconf[1]  = gprs.readStringUntil('-').toInt();
+  tconf[2]  = gprs.readStringUntil('T').toInt();
+  tconf[3]  = gprs.readStringUntil(':').toInt();
+  tconf[4]  = gprs.readStringUntil(':').toInt();
+  tconf[5]  = gprs.readStringUntil('+').toInt();
+  confver = tmConvert_t(tconf[0],tconf[1],tconf[2],tconf[3],tconf[4],tconf[5]);
   gprs.println("AT+HTTPTERM\r");
   if(!gprs.find("OK")){
   modemReset();
@@ -145,7 +160,6 @@ void dataSend(float mis, float mis1,String url,bool ssl){
   #ifdef DEBUG
   Serial.println("HTTP concluso");
   #endif
-  
   stato = "invio COMPLETATO";
 }
 
@@ -243,10 +257,11 @@ delay(500);
   Serial.println("HTTP concluso");
   #endif
   stato = "configurazione COMPLETATA";
+  if(c) lastconf=now();
   return c;
 }
 
-//FUNZIONE sincronizzazione orologio via Internet
+                                                                   //FUNZIONE sincronizzazione orologio via Internet
 time_t setDateTimeWeb(){
   blinkled(1);
   gprs.println("AT+HTTPINIT\r");

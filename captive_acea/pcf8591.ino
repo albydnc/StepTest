@@ -20,7 +20,6 @@ byte pcfRead(byte ch){
 //FUNZIONE misura media e conversione in percentuale
 void misura(int dm, int du){
   byte nmis = du/dm;
-  
   if(millis()> last){
   lettura0 += (pcfRead(P0)/255.0)*100.00;
   lettura1 += (pcfRead(P1)/255.0)*100.00;
@@ -40,6 +39,8 @@ void misura(int dm, int du){
     Serial.println("media1: "+String(media)+" media2: "+String(media1));
     #endif
     p=0;
+    if(du >= 60) modemON(); // spegne il modem se il periodo di aggiornamento è superiore a 60 sec
     dataSend(media,media1,UPurl,false);
+    if(du >= 60) modemOFF();
   }
 }
